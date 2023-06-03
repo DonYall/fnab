@@ -22,18 +22,28 @@ public class App extends JFrame {
     boolean flashlight = false;
     boolean mask = false;
     int maskIndex = -1;
+    double flashlightBattery = 100;
     String foxy = "";
     long nextFoxy = 0;
     long nextFoxyJumpscare = 0;
     int time = 12;
     String jumpscare = "";
     double musicBoxProgress = 100;
-
+    int josephPosition = 2;
+    long nextJosephMovement = 0;
+    int pearheadPosition = -2;
+    long nextPearheadMovement = 0;
+    boolean pearheadInOffice = false;
+    long nextKatieJumpscare = 0;
+    boolean katieInOffice = false;
     final Rectangle foxySpawn;
+    final Rectangle cameraSpawn;
+
     public App () throws IOException {
         // Set constants
         multiplier = Toolkit.getDefaultToolkit().getScreenSize().width / 1920;
         foxySpawn = new Rectangle(798, 268, 340, 340);
+        cameraSpawn = new Rectangle(-50, -50, 1200, 1200);
         cameraImages[0] = ImageIO.read(getClass().getResource("cam0.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
         cameraImages[1] = ImageIO.read(getClass().getResource("cam1.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
         cameraImages[2] = ImageIO.read(getClass().getResource("cam2.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
@@ -48,31 +58,50 @@ public class App extends JFrame {
         images.put("office", ImageIO.read(getClass().getResource("office2.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH));
         images.put("office_flashlighted", ImageIO.read(getClass().getResource("office2_flashlighted.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH));
         images.put("flashlight", ImageIO.read(getClass().getResource("flashlight.png")));
-        images.put("andrew", ImageIO.read(getClass().getResource("andrew.png")));
-        images.put("deev", ImageIO.read(getClass().getResource("deev.png")));
-        images.put("don", ImageIO.read(getClass().getResource("don.png")));
+        // images.put("andrew", ImageIO.read(getClass().getResource("andrew.png")));
+        // images.put("deev", ImageIO.read(getClass().getResource("deev.png")));
+        // images.put("don", ImageIO.read(getClass().getResource("don.png")));
         images.put("ethan", ImageIO.read(getClass().getResource("ethan.png")));
         images.put("joseph", ImageIO.read(getClass().getResource("joseph.png")));
-        images.put("kairo", ImageIO.read(getClass().getResource("kairo.png")));
+        // images.put("kairo", ImageIO.read(getClass().getResource("kairo.png")));
         images.put("katie", ImageIO.read(getClass().getResource("katie.png")));
+        images.put("katieGhost", ImageIO.read(getClass().getResource("katieGhost.png")));
         images.put("mk", ImageIO.read(getClass().getResource("mk.png")));
-        images.put("steph", ImageIO.read(getClass().getResource("steph.png")));
+        images.put("pearhead", ImageIO.read(getClass().getResource("pearhead.png")));
+        // images.put("steph", ImageIO.read(getClass().getResource("steph.png")));
 
         // Set up JPanel
         gamePanel = new JPanel() {
             @Override
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.setFont(new Font("Arial", Font.BOLD, (int)(40 * multiplier)));
                 g.setColor(Color.WHITE);
                 if (currentCamera == -1) {
                     if (flashlight) {
+                        flashlightBattery -= 0.05;
                         g.drawImage(images.get("office_flashlighted"), 0, 0, this);
                         g.drawImage(images.get("flashlight"), (int)((foxySpawn.x-70) * multiplier), (int)((foxySpawn.y-70) * multiplier), (int)((foxySpawn.width+140) * multiplier), (int)((foxySpawn.height+140) * multiplier), null);
                         g.drawImage(images.get(foxy), (int)(foxySpawn.x * multiplier), (int)(foxySpawn.y * multiplier), (int)(foxySpawn.width * multiplier), (int)(foxySpawn.height * multiplier), null);    
                     } else {
                         g.drawImage(images.get("office"), 0, 0, this);
                     }
+
+                    if (pearheadInOffice) {
+                        g.drawImage(images.get("pearhead"), 0, (int)((590) * multiplier), (int)(590 * multiplier), (int)(590 * multiplier), null);
+                    }
+
+                    if (katieInOffice) {
+                        g.drawImage(images.get("katieGhost"), (int)(foxySpawn.x * multiplier), (int)(foxySpawn.y * multiplier), (int)(foxySpawn.width * multiplier), (int)(foxySpawn.height * multiplier), null);
+                    }
+
+                    if (maskIndex > -1) {
+                        g.drawImage(maskImages[maskIndex], 0, 0, this);
+                    }
+
+                    g.setFont(new Font("Arial", Font.PLAIN, (int)(10 * multiplier)));
+                    g.drawString("Flashlight Battery: ", (int)((1920 - 110)*multiplier), (int)(20*multiplier));
+                    if (flashlightBattery > 0) g.fillRect((int)((1920 - 110)*multiplier), (int)(30*multiplier), (int)(((int)(flashlightBattery/25))*25*multiplier), (int)(20*multiplier));
+                    g.setFont(new Font("Arial", Font.BOLD, (int)(40 * multiplier)));
                     g.drawString(time + " AM", (int)(10*multiplier), (int)(50*multiplier));
                 } else {
                     g.drawImage(cameraImages[currentCamera], 0, 0, this);
@@ -80,9 +109,14 @@ public class App extends JFrame {
                         g.drawRect((int)(10*multiplier), (int)(10*multiplier), (int)(4*100*multiplier), (int)(20*multiplier));
                         g.fillRect((int)(10*multiplier), (int)(10*multiplier), (int)(4*musicBoxProgress*multiplier), (int)(20*multiplier));
                     }
-                }
-                if (maskIndex > -1) {
-                    g.drawImage(maskImages[maskIndex], 0, 0, this);
+
+                    if (josephPosition == currentCamera) {
+                        g.drawImage(images.get("joseph"), (int)(cameraSpawn.x * multiplier), (int)(cameraSpawn.y * multiplier), (int)(cameraSpawn.width * multiplier), (int)(cameraSpawn.height * multiplier), null);
+                    }
+
+                    if (pearheadPosition == currentCamera) {
+                        g.drawImage(images.get("pearhead"), (int)(cameraSpawn.x * multiplier), (int)(cameraSpawn.y * multiplier), (int)(cameraSpawn.width * multiplier), (int)(cameraSpawn.height * multiplier), null);
+                    }
                 }
 
                 if (jumpscare != "") {
@@ -98,54 +132,47 @@ public class App extends JFrame {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (!mask && e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    if (currentCamera == -1) {
+                if (!flashlight && !mask && e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    if (currentCamera == -1 && flashlightBattery > 0) {
                         flashlight = true;
+                        playSound("flashlight");
                     } else if (currentCamera == 0) {
                         if (musicBoxProgress < 100) {
-                            musicBoxProgress += 0.2;
+                            musicBoxProgress += 0.3;
                         }
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_1) {
+                    if (mask) return;
+                    katieInOffice = false;
                     if (currentCamera == 0) {
                         currentCamera = -1;
                         sounds.get("musicBox").stop();
+                        playSound("blip");
+                        if ((int) (Math.random() * 10) == 0) {
+                            katieInOffice = true;
+                            nextKatieJumpscare = System.currentTimeMillis() + 1500;
+                        }
                     } else {
                         flashlight = false;
                         currentCamera = 0;
                         playSound("musicBox");
+                        playSound("blip");
                     }
-                } else if (e.getKeyCode() == KeyEvent.VK_2) {
-                    if (currentCamera == 1) {
+                } else if (e.getKeyCode() >= KeyEvent.VK_2 && e.getKeyCode() <= KeyEvent.VK_5) {
+                    if (mask) return;
+                    katieInOffice = false;
+                    if (currentCamera == e.getKeyCode()-49) {
                         currentCamera = -1;
+                        playSound("blip");
+                        if ((int) (Math.random() * 10) == 0) {
+                            katieInOffice = true;
+                            nextKatieJumpscare = System.currentTimeMillis() + 1500;
+                        }
                     } else {
                         flashlight = false;
-                        currentCamera = 1;
-                        sounds.get("musicBox").stop();
-                    }
-                } else if (e.getKeyCode() == KeyEvent.VK_3) {
-                    if (currentCamera == 2) {
-                        currentCamera = -1;
-                    } else {
-                        flashlight = false;
-                        currentCamera = 2;
-                        sounds.get("musicBox").stop();
-                    }
-                } else if (e.getKeyCode() == KeyEvent.VK_4) {
-                    if (currentCamera == 3) {
-                        currentCamera = -1;
-                    } else {
-                        flashlight = false;
-                        currentCamera = 3;
-                        sounds.get("musicBox").stop();
-                    }
-                } else if (e.getKeyCode() == KeyEvent.VK_5) {
-                    if (currentCamera == 4) {
-                        currentCamera = -1;
-                    } else {
-                        flashlight = false;
-                        currentCamera = 4;
-                        sounds.get("musicBox").stop();
+                        if (currentCamera == 0) sounds.get("musicBox").stop();
+                        currentCamera = e.getKeyCode()-49;
+                        playSound("blip");
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_S && currentCamera == -1) {
                     flashlight = false;
@@ -160,7 +187,7 @@ public class App extends JFrame {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if (currentCamera == -1 && e.getKeyCode() == KeyEvent.VK_SPACE) {
+                if (flashlight && currentCamera == -1 && e.getKeyCode() == KeyEvent.VK_SPACE) {
                     flashlight = false;
                 }
             }
@@ -180,18 +207,25 @@ public class App extends JFrame {
             Clip clip = AudioSystem.getClip();
             clip.open(AudioSystem.getAudioInputStream(getClass().getResource(name + ".wav")));
             clip.start();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (clip.getFramePosition() < clip.getFrameLength()) {
-                        Thread.yield();
+            if (name.equals("weasel")) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (clip.getFramePosition() < clip.getFrameLength()) {
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        clip.close();
+                    jumpscare = "mk";
+                    currentCamera = -1;
+                    mask = false;
+                    maskIndex = -1;
                     }
-                    clip.close();
-                    if (name.equals("weasel")) {
-                        jumpscare = "mk";
-                    }
-                }
-            }).start();
+                }).start();
+            }
             sounds.put(name, clip);
         } catch (NullPointerException e) {
             System.out.println("audio file not found: " + name);
@@ -210,6 +244,44 @@ public class App extends JFrame {
                 }
                 if (time == 6) {
                     dispose();
+                }
+
+                if (nextJosephMovement == 0) {
+                    nextJosephMovement = System.currentTimeMillis() + (1000 * 60);
+                } else if (nextJosephMovement < System.currentTimeMillis()) {
+                    if (josephPosition == 0) {
+                        josephPosition = (int) (Math.random() * 2) + 3;
+                    } else if (josephPosition > 2 && !mask) {
+                        jumpscare = "joseph";
+                        currentCamera = -1;
+                        maskIndex = -1;
+                    } else {
+                        josephPosition = (int) (Math.random() * 5);
+                    }
+                    nextJosephMovement = System.currentTimeMillis() + (1000 * 30);
+                }
+
+                if (nextPearheadMovement == 0) {
+                    nextPearheadMovement = System.currentTimeMillis() + (2000 * 60);
+                } else if (nextPearheadMovement < System.currentTimeMillis() && pearheadPosition == -2) {
+                    pearheadPosition = (int) (Math.random() * 2) + 3;
+                    nextPearheadMovement = System.currentTimeMillis() + (1000 * 30);
+                } else if (nextPearheadMovement < System.currentTimeMillis() && pearheadPosition >= 3 && pearheadPosition < 5) {
+                    if (!mask) {
+                        flashlightBattery = 0;
+                        pearheadPosition = 5;
+                        pearheadInOffice = true;
+                        playSound("pearhead");    
+                    } else {
+                        pearheadPosition = 5;
+                    }
+                }
+
+                if (nextKatieJumpscare < System.currentTimeMillis() && katieInOffice) {
+                    jumpscare = "katie";
+                    currentCamera = -1;
+                    maskIndex = -1;
+                    katieInOffice = false;
                 }
 
                 if (mask && maskIndex < maskImages.length-1) {
@@ -232,12 +304,11 @@ public class App extends JFrame {
                     } else {
                         jumpscare = foxy;
                         currentCamera = -1;
-                        mask = false;
                         maskIndex = -1;
                     }
                 }
 
-                musicBoxProgress -= 0.1;
+                musicBoxProgress -= 0.05;
                 if (musicBoxProgress < 0 && musicBoxProgress > -1) {
                     playSound("weasel");
                     musicBoxProgress = -1;
