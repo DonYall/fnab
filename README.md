@@ -1,7 +1,7 @@
 # Five Nights At Bayview
 
 ## Requirements
-Java 8 or higher
+Java 18 or higher
 
 ## Controls
 SPACE - Shine flashlight/fill tylenol\
