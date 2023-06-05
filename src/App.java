@@ -41,33 +41,33 @@ public class App extends JFrame {
 
     public App () throws IOException {
         // Set constants
-        multiplier = Toolkit.getDefaultToolkit().getScreenSize().width / 1920;
+        multiplier = Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 1920;
         foxySpawn = new Rectangle(798, 268, 340, 340);
         cameraSpawn = new Rectangle(-50, -50, 1200, 1200);
-        cameraImages[0] = ImageIO.read(getClass().getResource("cam0.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
-        cameraImages[1] = ImageIO.read(getClass().getResource("cam1.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
-        cameraImages[2] = ImageIO.read(getClass().getResource("cam2.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
-        cameraImages[3] = ImageIO.read(getClass().getResource("cam3.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
-        cameraImages[4] = ImageIO.read(getClass().getResource("cam4.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
+        cameraImages[0] = ImageIO.read(getClass().getResource("Assets/cam0.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
+        cameraImages[1] = ImageIO.read(getClass().getResource("Assets/cam1.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
+        cameraImages[2] = ImageIO.read(getClass().getResource("Assets/cam2.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
+        cameraImages[3] = ImageIO.read(getClass().getResource("Assets/cam3.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
+        cameraImages[4] = ImageIO.read(getClass().getResource("Assets/cam4.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
 
         for (int i = 0; i < maskImages.length; i++) {
-            maskImages[i] = ImageIO.read(getClass().getResource(i+1 + ".png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
+            maskImages[i] = ImageIO.read(getClass().getResource("Assets/" + (i+1) + ".png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH);
         }
 
         // Load images
-        images.put("office", ImageIO.read(getClass().getResource("office2.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH));
-        images.put("office_flashlighted", ImageIO.read(getClass().getResource("office2_flashlighted.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH));
-        images.put("flashlight", ImageIO.read(getClass().getResource("flashlight.png")));
+        images.put("office", ImageIO.read(getClass().getResource("Assets/office2.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH));
+        images.put("office_flashlighted", ImageIO.read(getClass().getResource("Assets/office2_flashlighted.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH));
+        images.put("flashlight", ImageIO.read(getClass().getResource("Assets/flashlight.png")));
         // images.put("andrew", ImageIO.read(getClass().getResource("andrew.png")));
         // images.put("deev", ImageIO.read(getClass().getResource("deev.png")));
         // images.put("don", ImageIO.read(getClass().getResource("don.png")));
-        images.put("ethan", ImageIO.read(getClass().getResource("ethan.png")));
-        images.put("joseph", ImageIO.read(getClass().getResource("joseph.png")));
+        images.put("ethan", ImageIO.read(getClass().getResource("Assets/ethan.png")));
+        images.put("joseph", ImageIO.read(getClass().getResource("Assets/joseph.png")));
         // images.put("kairo", ImageIO.read(getClass().getResource("kairo.png")));
-        images.put("katie", ImageIO.read(getClass().getResource("katie.png")));
-        images.put("katieGhost", ImageIO.read(getClass().getResource("katieGhost.png")));
-        images.put("mk", ImageIO.read(getClass().getResource("mk.png")));
-        images.put("pearhead", ImageIO.read(getClass().getResource("pearhead.png")));
+        images.put("katie", ImageIO.read(getClass().getResource("Assets/katie.png")));
+        images.put("katieGhost", ImageIO.read(getClass().getResource("Assets/katieGhost.png")));
+        images.put("mk", ImageIO.read(getClass().getResource("Assets/mk.png")));
+        images.put("pearhead", ImageIO.read(getClass().getResource("Assets/pearhead.png")));
         // images.put("steph", ImageIO.read(getClass().getResource("steph.png")));
 
         // Set up JPanel
@@ -120,7 +120,7 @@ public class App extends JFrame {
                 }
 
                 if (jumpscare != "") {
-                    g.drawImage(images.get(jumpscare), 420, 0, 1080, 1080, null);
+                    g.drawImage(images.get(jumpscare), (int)(420 * multiplier), 0, (int)(1080 * multiplier), (int)(1080 * multiplier), null);
                 }
             }
         };
@@ -205,7 +205,7 @@ public class App extends JFrame {
     void playSound(String name) {
         try {
             Clip clip = AudioSystem.getClip();
-            clip.open(AudioSystem.getAudioInputStream(getClass().getResource(name + ".wav")));
+            clip.open(AudioSystem.getAudioInputStream(getClass().getResource("Assets/" + name + ".wav")));
             clip.start();
             if (name.equals("weasel")) {
                 new Thread(new Runnable() {
