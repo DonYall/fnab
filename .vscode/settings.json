@@ -1,7 +1,6 @@
 {
     "java.project.sourcePaths": [
-        "src",
-        "Assets"
+        "src"
     ],
     "java.dependency.packagePresentation": "hierarchical"
 }

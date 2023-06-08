@@ -36,6 +36,9 @@ public class App extends JFrame {
     boolean pearheadInOffice = false;
     long nextKatieJumpscare = 0;
     boolean katieInOffice = false;
+    long nextAndrew = 0;
+    long nextAndrewJumpscare = 0;
+    boolean floorVent = false;
     final Rectangle foxySpawn;
     final Rectangle cameraSpawn;
 
@@ -57,18 +60,19 @@ public class App extends JFrame {
         // Load images
         images.put("office", ImageIO.read(getClass().getResource("Assets/office2.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH));
         images.put("office_flashlighted", ImageIO.read(getClass().getResource("Assets/office2_flashlighted.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH));
+        images.put("officeFloor", ImageIO.read(getClass().getResource("Assets/officeFloor.png")).getScaledInstance((int)(1980 * multiplier), (int)(1080 * multiplier), Image.SCALE_SMOOTH));
         images.put("flashlight", ImageIO.read(getClass().getResource("Assets/flashlight.png")));
-        // images.put("andrew", ImageIO.read(getClass().getResource("andrew.png")));
-        // images.put("deev", ImageIO.read(getClass().getResource("deev.png")));
-        // images.put("don", ImageIO.read(getClass().getResource("don.png")));
+        images.put("andrew", ImageIO.read(getClass().getResource("Assets/andrew.png")));
+        // images.put("deev", ImageIO.read(getClass().getResource("Assets/deev.png")));
+        // images.put("don", ImageIO.read(getClass().getResource("Assets/don.png")));
         images.put("ethan", ImageIO.read(getClass().getResource("Assets/ethan.png")));
         images.put("joseph", ImageIO.read(getClass().getResource("Assets/joseph.png")));
-        // images.put("kairo", ImageIO.read(getClass().getResource("kairo.png")));
+        // images.put("kairo", ImageIO.read(getClass().getResource("Assets/kairo.png")));
         images.put("katie", ImageIO.read(getClass().getResource("Assets/katie.png")));
         images.put("katieGhost", ImageIO.read(getClass().getResource("Assets/katieGhost.png")));
         images.put("mk", ImageIO.read(getClass().getResource("Assets/mk.png")));
         images.put("pearhead", ImageIO.read(getClass().getResource("Assets/pearhead.png")));
-        // images.put("steph", ImageIO.read(getClass().getResource("steph.png")));
+        // images.put("steph", ImageIO.read(getClass().getResource("Assets/steph.png")));
 
         // Set up JPanel
         gamePanel = new JPanel() {
@@ -78,12 +82,21 @@ public class App extends JFrame {
                 g.setColor(Color.WHITE);
                 if (currentCamera == -1) {
                     if (flashlight) {
-                        flashlightBattery -= 0.05;
+                        flashlightBattery -= 0.2;
+                        if (flashlightBattery <= 0) {
+                            flashlight = false;
+                        }
                         g.drawImage(images.get("office_flashlighted"), 0, 0, this);
                         g.drawImage(images.get("flashlight"), (int)((foxySpawn.x-70) * multiplier), (int)((foxySpawn.y-70) * multiplier), (int)((foxySpawn.width+140) * multiplier), (int)((foxySpawn.height+140) * multiplier), null);
                         g.drawImage(images.get(foxy), (int)(foxySpawn.x * multiplier), (int)(foxySpawn.y * multiplier), (int)(foxySpawn.width * multiplier), (int)(foxySpawn.height * multiplier), null);    
                     } else {
                         g.drawImage(images.get("office"), 0, 0, this);
+                    }
+
+                    if (!floorVent) {
+                        g.drawImage(images.get("officeFloor"), 0, 0, this);
+                    } else {
+                        flashlightBattery -= 0.2;
                     }
 
                     if (pearheadInOffice) {
@@ -99,8 +112,8 @@ public class App extends JFrame {
                     }
 
                     g.setFont(new Font("Arial", Font.PLAIN, (int)(10 * multiplier)));
-                    g.drawString("Flashlight Battery: ", (int)((1920 - 110)*multiplier), (int)(20*multiplier));
-                    if (flashlightBattery > 0) g.fillRect((int)((1920 - 110)*multiplier), (int)(30*multiplier), (int)(((int)(flashlightBattery/25))*25*multiplier), (int)(20*multiplier));
+                    g.drawString("Battery: ", (int)((1920 - 110)*multiplier), (int)(20*multiplier));
+                    if (flashlightBattery > 0) g.fillRect((int)((1920 - 110)*multiplier), (int)(30*multiplier), (int)(((int)((flashlightBattery + 24)/25))*25*multiplier), (int)(20*multiplier));
                     g.setFont(new Font("Arial", Font.BOLD, (int)(40 * multiplier)));
                     g.drawString(time + " AM", (int)(10*multiplier), (int)(50*multiplier));
                 } else {
@@ -108,6 +121,8 @@ public class App extends JFrame {
                     if (currentCamera == 0 && musicBoxProgress > 0) {
                         g.drawRect((int)(10*multiplier), (int)(10*multiplier), (int)(4*100*multiplier), (int)(20*multiplier));
                         g.fillRect((int)(10*multiplier), (int)(10*multiplier), (int)(4*musicBoxProgress*multiplier), (int)(20*multiplier));
+                    } else if (currentCamera == 0) {
+                        g.drawImage(images.get("mk"), (int)(foxySpawn.x * multiplier), (int)(foxySpawn.y * multiplier), (int)(foxySpawn.width * multiplier), (int)(foxySpawn.height * multiplier), null);
                     }
 
                     if (josephPosition == currentCamera) {
@@ -155,7 +170,7 @@ public class App extends JFrame {
                     } else {
                         flashlight = false;
                         currentCamera = 0;
-                        playSound("musicBox");
+                        if (musicBoxProgress > 0) playSound("musicBox");
                         playSound("blip");
                     }
                 } else if (e.getKeyCode() >= KeyEvent.VK_2 && e.getKeyCode() <= KeyEvent.VK_5) {
@@ -182,6 +197,8 @@ public class App extends JFrame {
                         maskIndex = 0;
                         mask = true;
                     }
+                } else if (e.getKeyCode() == KeyEvent.VK_W && currentCamera == -1 && !mask) {
+                    floorVent = !floorVent;
                 }
             }
 
@@ -230,7 +247,7 @@ public class App extends JFrame {
         } catch (NullPointerException e) {
             System.out.println("audio file not found: " + name);
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e1) {
-            e1.printStackTrace();
+            System.out.println(e1.getMessage());
         }
     }
 
@@ -243,86 +260,117 @@ public class App extends JFrame {
                     time = 12;
                 }
                 if (time == 6) {
-                    dispose();
-                }
-
-                if (nextJosephMovement == 0) {
-                    nextJosephMovement = System.currentTimeMillis() + (1000 * 60);
-                } else if (nextJosephMovement < System.currentTimeMillis()) {
-                    if (josephPosition == 0) {
-                        josephPosition = (int) (Math.random() * 2) + 3;
-                    } else if (josephPosition > 2 && !mask) {
-                        jumpscare = "joseph";
-                        currentCamera = -1;
-                        maskIndex = -1;
-                    } else {
-                        josephPosition = (int) (Math.random() * 5);
-                    }
-                    nextJosephMovement = System.currentTimeMillis() + (1000 * 30);
-                }
-
-                if (nextPearheadMovement == 0) {
-                    nextPearheadMovement = System.currentTimeMillis() + (2000 * 60);
-                } else if (nextPearheadMovement < System.currentTimeMillis() && pearheadPosition == -2) {
-                    pearheadPosition = (int) (Math.random() * 2) + 3;
-                    nextPearheadMovement = System.currentTimeMillis() + (1000 * 30);
-                } else if (nextPearheadMovement < System.currentTimeMillis() && pearheadPosition >= 3 && pearheadPosition < 5) {
-                    if (!mask) {
-                        flashlightBattery = 0;
-                        pearheadPosition = 5;
-                        pearheadInOffice = true;
-                        playSound("pearhead");    
-                    } else {
-                        pearheadPosition = 5;
-                    }
-                }
-
-                if (nextKatieJumpscare < System.currentTimeMillis() && katieInOffice) {
-                    jumpscare = "katie";
+                    playSound("6am");
                     currentCamera = -1;
+                    jumpscare = "";
+                    mask = false;
                     maskIndex = -1;
-                    katieInOffice = false;
-                }
+                    flashlight = false;
+                    repaint();
+                    break;
+                } else {
+                    if (mask && maskIndex < maskImages.length-1) {
+                        maskIndex++;
+                    } else if (!mask && maskIndex < maskImages.length && maskIndex >= 0) {
+                        maskIndex--;
+                    }
 
-                if (mask && maskIndex < maskImages.length-1) {
-                    maskIndex++;
-                } else if (!mask && maskIndex < maskImages.length && maskIndex >= 0) {
-                    maskIndex--;
-                }
+                    if (nextJosephMovement == 0) {
+                        nextJosephMovement = System.currentTimeMillis() + (1000 * 60);
+                    } else if (nextJosephMovement < System.currentTimeMillis()) {
+                        if (josephPosition == 0) {
+                            josephPosition = (int) (Math.random() * 2) + 3;
+                        } else if (josephPosition > 2) {
+                            if (!mask) {
+                                jumpscare = "joseph";
+                                currentCamera = -1;
+                                maskIndex = -1;    
+                            } else {
+                                josephPosition = (int) (Math.random() * 5);
+                            }
+                        } else {
+                            josephPosition = (int) (Math.random() * 3);
+                        }
+                        nextJosephMovement = System.currentTimeMillis() + (1000 * 30);
+                    }
 
-                if (nextFoxy == 0 && foxy == "") {
-                    nextFoxy = System.currentTimeMillis() + (int) (Math.random() * 20000) + 10000;
-                } else if (nextFoxy < System.currentTimeMillis() && foxy == "") {
-                    foxy = "ethan";
-                    nextFoxy = 0;
-                    nextFoxyJumpscare = System.currentTimeMillis() + (int) (Math.random() * 10000) + 5000;
-                } else if (nextFoxyJumpscare < System.currentTimeMillis() && foxy == "ethan") {
-                    if (mask) {
-                        nextFoxyJumpscare = 0;
-                        foxy = "";
-                        nextFoxy = System.currentTimeMillis() + (int) (Math.random() * 20000) + 10000;
-                    } else {
-                        jumpscare = foxy;
+                    if (nextPearheadMovement == 0) {
+                        nextPearheadMovement = System.currentTimeMillis() + (2000 * 60);
+                    } else if (nextPearheadMovement < System.currentTimeMillis() && pearheadPosition == -2) {
+                        pearheadPosition = (int) (Math.random() * 2) + 3;
+                        nextPearheadMovement = System.currentTimeMillis() + (1000 * 30);
+                    } else if (nextPearheadMovement < System.currentTimeMillis() && pearheadPosition >= 3 && pearheadPosition < 5) {
+                        if (!mask) {
+                            flashlightBattery = 0;
+                            pearheadPosition = 5;
+                            pearheadInOffice = true;
+                            playSound("pearhead");    
+                        } else {
+                            pearheadPosition = -2;
+                            nextPearheadMovement = System.currentTimeMillis() + (1000 * 60);
+                        }
+                    }
+
+                    if (nextKatieJumpscare < System.currentTimeMillis() && katieInOffice) {
+                        jumpscare = "katie";
                         currentCamera = -1;
                         maskIndex = -1;
+                        katieInOffice = false;
                     }
+
+                    if (nextAndrew == 0) {
+                        nextAndrew = System.currentTimeMillis() + (int) (Math.random() * 10000) + 10000;
+                    } else if (nextAndrew < System.currentTimeMillis()) {
+                        nextAndrew = System.currentTimeMillis() + (int) (Math.random() * 10000) + 13000;
+                        playSound("vents");
+                        nextAndrewJumpscare = System.currentTimeMillis() + (1000 * 3);
+                    }
+
+                    if (nextAndrewJumpscare != 0 && nextAndrewJumpscare < System.currentTimeMillis()) {
+                        if (floorVent) {
+                            nextAndrewJumpscare = 0;
+                        } else {
+                            jumpscare = "andrew";
+                            currentCamera = -1;
+                            maskIndex = -1;
+                        }
+                    }
+
+                    if (nextFoxy == 0 && foxy == "") {
+                        nextFoxy = System.currentTimeMillis() + (int) (Math.random() * 20000) + 10000;
+                    } else if (nextFoxy < System.currentTimeMillis() && foxy == "") {
+                        foxy = "ethan";
+                        nextFoxy = 0;
+                        nextFoxyJumpscare = System.currentTimeMillis() + (int) (Math.random() * 10000) + 5000;
+                    } else if (nextFoxyJumpscare < System.currentTimeMillis() && foxy == "ethan") {
+                        if (mask) {
+                            nextFoxyJumpscare = 0;
+                            foxy = "";
+                            nextFoxy = System.currentTimeMillis() + (int) (Math.random() * 20000) + 10000;
+                        } else {
+                            jumpscare = foxy;
+                            currentCamera = -1;
+                            maskIndex = -1;
+                        }
+                    }
+
+                    musicBoxProgress -= 0.1;
+                    if (musicBoxProgress < 0 && musicBoxProgress > -1) {
+                        playSound("weasel");
+                        musicBoxProgress = -1;
+                    } else if (musicBoxProgress > 100) {
+                        musicBoxProgress = 100;
+                    }
+
+                    Thread.sleep(1000 / 30);
+                    revalidate();
+                    repaint();
+                    if (jumpscare != "") {
+                        playSound("anitaScream");
+                        break;
+                    }    
                 }
 
-                musicBoxProgress -= 0.05;
-                if (musicBoxProgress < 0 && musicBoxProgress > -1) {
-                    playSound("weasel");
-                    musicBoxProgress = -1;
-                } else if (musicBoxProgress > 100) {
-                    musicBoxProgress = 100;
-                }
-
-                Thread.sleep(1000 / 30);
-                revalidate();
-                repaint();
-                if (jumpscare != "") {
-                    playSound("anitaScream");
-                    break;
-                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
