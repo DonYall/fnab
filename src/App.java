@@ -85,6 +85,7 @@ public class App extends JFrame {
                         flashlightBattery -= 0.2;
                         if (flashlightBattery <= 0) {
                             flashlight = false;
+                            floorVent = false;
                         }
                         g.drawImage(images.get("office_flashlighted"), 0, 0, this);
                         g.drawImage(images.get("flashlight"), (int)((foxySpawn.x-70) * multiplier), (int)((foxySpawn.y-70) * multiplier), (int)((foxySpawn.width+140) * multiplier), (int)((foxySpawn.height+140) * multiplier), null);
@@ -97,6 +98,9 @@ public class App extends JFrame {
                         g.drawImage(images.get("officeFloor"), 0, 0, this);
                     } else {
                         flashlightBattery -= 0.2;
+                        if (flashlightBattery <= 0) {
+                            floorVent = false;
+                        }
                     }
 
                     if (pearheadInOffice) {
@@ -197,7 +201,7 @@ public class App extends JFrame {
                         maskIndex = 0;
                         mask = true;
                     }
-                } else if (e.getKeyCode() == KeyEvent.VK_W && currentCamera == -1 && !mask) {
+                } else if (e.getKeyCode() == KeyEvent.VK_W && currentCamera == -1 && !mask && flashlightBattery > 0) {
                     floorVent = !floorVent;
                 }
             }
