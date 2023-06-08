@@ -97,7 +97,7 @@ public class App extends JFrame {
                     if (!floorVent) {
                         g.drawImage(images.get("officeFloor"), 0, 0, this);
                     } else {
-                        flashlightBattery -= 0.2;
+                        flashlightBattery -= 0.05;
                         if (flashlightBattery <= 0) {
                             floorVent = false;
                         }
